@@ -26,8 +26,8 @@ void dispatch(hls::stream<float> real_val[PE_NUM], hls::stream<float> imag_val[P
         int pe_index = i % PE_NUM;
 
         // Write values to the corresponding streams
-        real_val[pe_index].write(r_val.fl);
-        imag_val[pe_index].write(i_val.fl);
+        real_val[pe_index].write_nb(r_val.fl);
+        imag_val[pe_index].write_nb(i_val.fl);
     }
 
 }
@@ -36,13 +36,13 @@ void dispatch(hls::stream<float> real_val[PE_NUM], hls::stream<float> imag_val[P
 // Processing Element
 void juliaIterator(hls::stream <float> &real_val, hls::stream <float> &imag_val, float Cr, float Ci, int max_iteration, hls::stream <int>&num_iter){
     int n = 0;
-    if(real_val.empty()){
-        if(imag_val.empty()){
-            return;
-        }
-    }
-    float real = real_val.read();
-    float imag = imag_val.read();
+    // if(real_val.empty() || img_val.empty()){
+    //     return;
+    // }
+    float real;
+    real_val.read_nb(real);
+    float imag;
+    imag_val.read_nb(imag);
     
     JULIA_ITERATOR_LOOP:
     // #pragma pipeline
@@ -52,7 +52,7 @@ void juliaIterator(hls::stream <float> &real_val, hls::stream <float> &imag_val,
         imag = 2 * temp_real * imag + Ci;
     }
 
-    num_iter.write(n);
+    num_iter.write_nb(n);
 }
 
 void merge(hls::stream<int> num_iter[PE_NUM], hls::stream<bit32_t>& output_stream) {
@@ -64,7 +64,8 @@ void merge(hls::stream<int> num_iter[PE_NUM], hls::stream<bit32_t>& output_strea
         MERGE_INNERLOOP:
         for (int i = 0; i < (WIDTH * HEIGHT) / PE_NUM; ++i) {
             // Read value from the current stream
-            int value = num_iter[pe].read();
+            int value;
+            num_iter[pe].read_nb(value);
             
             // Write the value to the output stream
             output_stream.write(value);
@@ -80,9 +81,9 @@ void dut(hls::stream<bit32_t> &strm_in, hls::stream<bit32_t> &strm_out) {
     hls::stream<float> imag_val[PE_NUM];
     hls::stream<int>   num_iter[PE_NUM];
 
-    #pragma HLS stream variable=real_val depth=4097 //real FIFO depth is depth-1
-    #pragma HLS stream variable=imag_val depth=4097 //real FIFO depth is depth-1
-    #pragma HLS stream variable=num_iter depth=4097
+    #pragma HLS stream variable=real_val depth=4 //real FIFO depth is depth-1
+    #pragma HLS stream variable=imag_val depth=4 //real FIFO depth is depth-1
+    #pragma HLS stream variable=num_iter depth=4
 
     // Dispatch real and imaginary values into the streams
     dispatch(real_val, imag_val, strm_in);
