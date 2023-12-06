@@ -74,7 +74,7 @@ void merge(hls::stream<int> num_iter[PE_NUM], hls::stream<bit32_t>& output_strea
 
 //main function
 void dut(hls::stream<bit32_t> &strm_in, hls::stream<bit32_t> &strm_out) {
-    // #pragma HLS dataflow
+    #pragma HLS dataflow
     // Partition 
     hls::stream<float> real_val[PE_NUM];
     hls::stream<float> imag_val[PE_NUM];
