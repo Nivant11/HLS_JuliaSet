@@ -1,8 +1,13 @@
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <hls_stream.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<fcntl.h>
+#include<math.h>
+#include<assert.h>
+
+#include<iostream>
+#include<fstream>
+
 #include "julia_dataflow.h"
 #include "ap_int.h"
 
@@ -20,6 +25,8 @@ int main() {
     // These channels appear as files to the Linux OS
     int fdr = open("/dev/xillybus_read_32", O_RDONLY);
     int fdw = open("/dev/xillybus_write_32", O_WRONLY);
+
+    int nbytes;
 
     if ((fdr < 0) || (fdw < 0)) {
         fprintf (stderr, "Failed to open Xillybus device channels\n");
@@ -44,10 +51,13 @@ int main() {
     for (int i = 0; i< WIDTH*HEIGHT; i++){
         uint32_t s_out;
         nbytes = read (fdr, (void*)&s_out, sizeof(s_out));
-        outputFile << value << " \n";
+        outputFile << s_out << " \n";
     }
 
     outputFile.close();
+
+    close(fdw);
+    close(fdr);
 
     return 0;
 }
