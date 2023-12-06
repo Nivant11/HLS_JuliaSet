@@ -8,7 +8,7 @@
 #include<iostream>
 #include<fstream>
 
-#include "julia_dataflow.h"
+#include "host.h"
 #include "ap_int.h"
 
 using namespace std;
