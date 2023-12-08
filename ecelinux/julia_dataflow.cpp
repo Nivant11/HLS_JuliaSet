@@ -26,8 +26,8 @@ void dispatch(hls::stream<float> real_val[PE_NUM], hls::stream<float> imag_val[P
         int pe_index = i % PE_NUM;
 
         // Write values to the corresponding streams
-        real_val[pe_index].write_nb(r_val.fl);
-        imag_val[pe_index].write_nb(i_val.fl);
+        real_val[pe_index].write(r_val.fl);
+        imag_val[pe_index].write(i_val.fl);
     }
 
 }
@@ -40,9 +40,9 @@ void juliaIterator(hls::stream <float> &real_val, hls::stream <float> &imag_val,
     //     return;
     // }
     float real;
-    real_val.read_nb(real);
+    real_val.read(real);
     float imag;
-    imag_val.read_nb(imag);
+    imag_val.read(imag);
     
     JULIA_ITERATOR_LOOP:
     // #pragma pipeline
@@ -52,23 +52,25 @@ void juliaIterator(hls::stream <float> &real_val, hls::stream <float> &imag_val,
         imag = 2 * temp_real * imag + Ci;
     }
 
-    num_iter.write_nb(n);
+    num_iter.write(n);
 }
 
 void merge(hls::stream<int> num_iter[PE_NUM], hls::stream<bit32_t>& output_stream) {
     // Iterate over each stream
     MERGE_OUTERLOOP:
     // #pragma pipeline
-    for (int pe = 0; pe < PE_NUM; ++pe) {
-        // Iterate over each element in the stream
-        MERGE_INNERLOOP:
-        for (int i = 0; i < (WIDTH * HEIGHT) / PE_NUM; ++i) {
+    int value;
+    int cnt = 0;
+    while (cnt < (WIDTH * HEIGHT)){
+        for (int pe = 0; pe < PE_NUM; ++pe) { //****need to get rid of for loop*****
+            // Iterate over each element in the stream
             // Read value from the current stream
-            int value;
-            num_iter[pe].read_nb(value);
+            if (num_iter[pe].read_nb(value)){
+                // Write the value to the output stream
+                output_stream.write(value);
+                cnt++;
+            }
             
-            // Write the value to the output stream
-            output_stream.write(value);
         }
     }
 }

@@ -26,7 +26,7 @@ sw: cordic.cpp cordic_test.cpp
 
 fpga: host.cpp
 	@echo "Compiling host program & running CORDIC accelerator ..."
-	g++ -I${CFLAGS} $< -o julia_dataflow-fpga
+	g++ -I${INC_PATH} $< -o julia_dataflow-fpga
 	./julia_dataflow-fpga
 
 fpga_batch: host_batch.cpp
