@@ -10,6 +10,7 @@
 
 #include "host.h"
 #include "ap_int.h"
+#include "timer.h"
 
 using namespace std;
 
@@ -33,6 +34,10 @@ int main() {
         exit(-1);
     }
 
+    Timer timer("JuliaSet ");
+
+    timer.start();
+
     // Populate the array with values from -2 to 2
     for (int i = 0; i < WIDTH; ++i) {
         float w_val = -2.0 + i * (4.0/(WIDTH - 1));
@@ -53,6 +58,8 @@ int main() {
         nbytes = read (fdr, (void*)&s_out, sizeof(s_out));
         outputFile << s_out << " \n";
     }
+
+    timer.stop();
 
     outputFile.close();
 

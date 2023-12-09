@@ -12,7 +12,7 @@
 #define MAX_ITER 1000
 #define CR -0.7
 #define CI 0.3
-#define PE_NUM 2
+#define PE_NUM 32
 
 typedef ap_uint<32> bit32_t;
 

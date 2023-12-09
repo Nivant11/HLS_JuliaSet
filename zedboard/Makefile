@@ -14,6 +14,7 @@
 # # Specify compilation flags
 # CFLAGS=-g -I${VHLS_INC} -DHLS_NO_XIL_FPO_LIB -std=c++11 
 
+
 INC_PATH=/usr/include/vivado_hls
 CFLAGS = -I${INC_PATH}
 
